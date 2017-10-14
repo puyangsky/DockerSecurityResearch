@@ -2,6 +2,7 @@
 
 import re
 import command as CMD
+from crawler import query_db as db
 
 import logging.config
 
@@ -41,8 +42,8 @@ class Directive:
 
 
 class Parser:
-    def __init__(self, lines):
-        self.lines = lines
+    def __init__(self, dockerfile):
+        self.lines = dockerfile.split("\n")
         root = Node()
         root.name = "root"
 
@@ -94,3 +95,15 @@ class Parser:
                     for cmd in command.split("&&"):
                         print(cmd)
             index += 1
+
+
+def parse():
+    results = db.fetch_many("nginx", 1)
+    for result in results:
+        dockerfile = result[0]
+        print(dockerfile)
+        parser = Parser(None)
+
+
+if __name__ == '__main__':
+    parse()
