@@ -23,7 +23,7 @@ logger = logging.getLogger("Parser")
 # works a little more effectively than a "proper" parse tree for our needs.
 class Node:
     def __init__(self):
-        self.child = []  # child node
+        self.child = {}  # child node
         self.next = None  # the next item in the current sexp
         self.value = ""  # actual content
         self.startLine = 0  #
@@ -31,7 +31,7 @@ class Node:
         self.name = ""  # node Name
 
     def addChild(self, child):
-        self.child.append(child)
+        self.child[child.name] = child
 
 
 # Directive is the structure used during a build run to hold the state of
@@ -43,7 +43,10 @@ class Directive:
 
 class Parser:
     def __init__(self, dockerfile):
-        self.lines = dockerfile.split("\n")
+        if dockerfile is not None:
+            self.lines = dockerfile.split("\n")
+        else:
+            self.lines = []
         root = Node()
         root.name = "root"
 
@@ -96,13 +99,19 @@ class Parser:
                         print(cmd)
             index += 1
 
-
+"""
+基本思路：
+每次读取一行，如果有"\"符号就继续append到这一行中
+再解析这一行作为一个child加入到root中
+解析这一行时首先根据其开头的cmd dispatch到不同的处理器中
+分别处理
+"""
 def parse():
     results = db.fetch_many("nginx", 1)
     for result in results:
         dockerfile = result[0]
         print(dockerfile)
-        parser = Parser(None)
+        parser = Parser(dockerfile)
 
 
 if __name__ == '__main__':
