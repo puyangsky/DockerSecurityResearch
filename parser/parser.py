@@ -49,10 +49,7 @@ class Parser:
             self.lines = []
         root = Node()
         root.name = "root"
-
-    def parse(self):
-        for line in self.lines:
-            print(line)
+        self.handle_comment_and_blank()
 
     def handle_comment_and_blank(self):
         pure_lines = []
@@ -64,6 +61,18 @@ class Parser:
                 pure_lines.append(line)
 
         self.lines = pure_lines
+
+    def dispatch(self):
+        if len(self.lines) == 0:
+            return
+        index = 0
+        while index < len(self.lines):
+            line = self.lines[index]
+            cmd_line = line.split(" ")
+            if len(cmd_line) == 2:
+                cmd = cmd_line[0]
+
+
 
     def parse_run(self):
         # 记录
@@ -107,7 +116,7 @@ class Parser:
 分别处理
 """
 def parse():
-    results = db.fetch_many("nginx", 1)
+    results = db.fetch_many(image_type="nginx", count=1)
     for result in results:
         dockerfile = result[0]
         print(dockerfile)
