@@ -4,33 +4,10 @@ from crawler import query_db as db
 import parse_line as lparser
 import logging.config
 import re
+from node import Node
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("Parser")
-
-
-# Node is a structure used to represent a parse tree.
-#
-# In the node there are three fields, Value, Next, and Children. Value is the
-# current token's string value. Next is always the next non-child token, and
-# children contains all the children. Here's an example:
-#
-# (value next (child child-next child-next-next) next-next)
-#
-# This data structure is frankly pretty lousy for handling complex languages,
-# but lucky for us the Dockerfile isn't very complicated. This structure
-# works a little more effectively than a "proper" parse tree for our needs.
-class Node:
-    def __init__(self):
-        self.child = {}  # child node
-        self.next = None  # the next item in the current sexp
-        self.value = ""  # actual content
-        self.startLine = 0  #
-        self.endLine = 0  #
-        self.name = ""  # node Name
-
-    def addChild(self, child):
-        self.child[child.name] = child
 
 
 # Directive is the structure used during a build run to hold the state of
@@ -46,8 +23,8 @@ class Parser:
             self.lines = dockerfile.split("\n")
         else:
             self.lines = []
-        root = Node()
-        root.name = "root"
+        self.root = Node()
+        self.root.name = "root"
         self.handle_comment_and_blank()
 
     def handle_comment_and_blank(self):
@@ -75,8 +52,11 @@ class Parser:
             match = re.match(pattern, line)
             if match:
                 head = match.group(1)
-                body = m.group(2)
-                lparser.line_parser[head](body)
+                body = match.group(2)
+                print(head, body)
+                child = lparser.line_parser[head](body)
+                if child is not None:
+                    self.root.addChild(child)
             index += 1
 
 
@@ -95,12 +75,8 @@ def parse():
         dockerfile = result[0]
         print(dockerfile)
         parser = Parser(dockerfile)
+        parser.dispatch()
 
 
 if __name__ == '__main__':
-    s = "RUN   apt dins a"
-    p = re.compile("^(.*?)\s+(.*?)$", re.S)
-    m = re.match(p, s)
-    if m:
-        print(m.group(1))
-        print(m.group(2))
+    parse()
