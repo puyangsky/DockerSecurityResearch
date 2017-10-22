@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from crawler import query_db as db
 import parse_line as lparser
 import logging.config
 import re
 from node import Node
+import json
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("Parser")
-
-
-# Directive is the structure used during a build run to hold the state of
-# parsing directives.
-class Directive:
-    def __init__(self):
-        pass
 
 
 class Parser:
@@ -25,6 +18,7 @@ class Parser:
             self.lines = []
         self.root = Node()
         self.root.name = "root"
+        self.root.directives = None
         self.handle_comment_and_blank()
 
     def handle_comment_and_blank(self):
@@ -44,8 +38,10 @@ class Parser:
         index = 0
         while index < len(self.lines):
             line = self.lines[index]
+            # \符号代表连接上一行
             while line.endswith("\\"):
                 index += 1
+                line = line.strip("\\")
                 line += self.lines[index]
             # 取command
             pattern = re.compile("^(.*?)\s+(.*?)$", re.S)
@@ -53,10 +49,14 @@ class Parser:
             if match:
                 head = match.group(1)
                 body = match.group(2)
-                print(head, body)
-                child = lparser.line_parser[head](body)
-                if child is not None:
-                    self.root.addChild(child)
+                # print(head, body)
+                if head in lparser.line_parser:
+                    child = lparser.line_parser[head](body)
+                    if child is not None:
+                        self.root.addChild(child)
+                else:
+                    print("[ERROR] %s, %s" % (head, body))
+
             index += 1
 
 
@@ -73,9 +73,12 @@ def parse():
     results = db.fetch_many(image_type="nginx", count=1)
     for result in results:
         dockerfile = result[0]
-        print(dockerfile)
+        # print(dockerfile)
         parser = Parser(dockerfile)
         parser.dispatch()
+        json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__)
+        print(json_str)
+        # print (parser.root)
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ def connect_db():
 def fetch_many(image_type, count):
     cursor = connect_db()
     sql = "select dockerfile_content from dockerfile WHERE type='%s' LIMIT %d" % (image_type, count)
-    print("exec sql: " + sql)
+    # print("exec sql: " + sql)
     cursor.execute(sql)
     return cursor.fetchall()
 
