@@ -4,14 +4,10 @@ from hashlib import md5
 
 from MySQLdb.cursors import DictCursor
 from DBUtils.PooledDB import PooledDB
-#from PooledDB import PooledDB
 import Config
-import time
 
   
 class Mysql(object):
-
-    
     __pool = None
     def __init__(self):
         

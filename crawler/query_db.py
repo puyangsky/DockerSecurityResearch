@@ -19,5 +19,7 @@ def fetch_many(image_type, count):
     return cursor.fetchall()
 
 
+
+
 if __name__ == '__main__':
     pass

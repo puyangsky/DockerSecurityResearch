@@ -60,23 +60,21 @@ class Parser:
             index += 1
 
 
-"""
-基本思路：
-每次读取一行，如果有"\"符号就继续append到这一行中
-再解析这一行作为一个child加入到root中
-解析这一行时首先根据其开头的cmd dispatch到不同的处理器中
-分别处理
-"""
-
-
 def parse():
+    """
+    基本思路：
+    每次读取一行，如果有'\'符号就继续append到这一行中
+    再解析这一行作为一个child加入到root中
+    解析这一行时首先根据其开头的cmd dispatch到不同的处理器中
+    分别处理
+    """
     results = db.fetch_many(image_type="nginx", count=1)
     for result in results:
         dockerfile = result[0]
         # print(dockerfile)
         parser = Parser(dockerfile)
         parser.dispatch()
-        json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__)
+        json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
         print(json_str)
         # print (parser.root)
 
