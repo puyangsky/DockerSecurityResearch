@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 # @author puyangsky
 
-Install_prefix = {
-    "ubuntu": "apt-get",
-    "debian": "apt-get",
-    "alpine": "apk",
-    "centos": "yum",
-    "fedora": "yum",
-    "redhat": "yum",
+INSTALL_PREFIX = {
+    "apt-get\s+install":  ["ubuntu", "debian"],
+    "apk\s+add":          ["alpine"],
+    "yum\s+install":      ["centos", "fedora", "redhat"],
 }
+

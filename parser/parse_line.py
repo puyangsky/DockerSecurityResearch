@@ -5,9 +5,12 @@ import logging.config
 import command
 from node import Node
 from directive import Directive
+import thesaurus
+import re
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("parse_line")
+count = 0
 
 
 def run_parser(body):
@@ -16,6 +19,25 @@ def run_parser(body):
     items = body.split("&&")
     for item in items:
         item = item.strip()
+        for prefix in thesaurus.INSTALL_PREFIX.keys():
+            match = re.search(prefix, item)
+            if match:  # 说明这一行安装了软件
+                # print(item)
+                global count
+                count += 1
+                print(count)
+                item = re.sub(prefix, '', item).strip()
+                install_list = item.split(" ")
+                pure_install_list = []
+                for install in install_list:
+                    if len(install.strip()) == 0:
+                        continue
+                    if install.strip().startswith("-"):
+                        continue
+                    pure_install_list.append(install.strip())
+                # print(pure_install_list)
+                break
+
         directive = Directive(item)
         child.directives.append(directive)
     return child

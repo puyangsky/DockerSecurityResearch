@@ -22,6 +22,9 @@ class Parser:
         self.handle_comment_and_blank()
 
     def handle_comment_and_blank(self):
+        """
+        去掉注释和空行
+        """
         pure_lines = []
         for line in self.lines:
             line = line.strip().lower()  # remove white space and to lower
@@ -42,14 +45,14 @@ class Parser:
             while line.endswith("\\"):
                 index += 1
                 line = line.strip("\\")
-                line += self.lines[index]
+                if index < len(self.lines):
+                    line += self.lines[index]
             # 取command
             pattern = re.compile("^(.*?)\s+(.*?)$", re.S)
             match = re.match(pattern, line)
             if match:
                 head = match.group(1)
                 body = match.group(2)
-                # print(head, body)
                 if head in lparser.line_parser:
                     child = lparser.line_parser[head](body)
                     if child is not None:
@@ -68,14 +71,15 @@ def parse():
     解析这一行时首先根据其开头的cmd dispatch到不同的处理器中
     分别处理
     """
-    results = db.fetch_many(image_type="nginx", count=1)
+    results = db.fetch_many(image_type="nginx", count=1000)
+    print(len(results))
     for result in results:
         dockerfile = result[0]
         # print(dockerfile)
         parser = Parser(dockerfile)
         parser.dispatch()
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-        print(json_str)
+        # print(json_str)
         # print (parser.root)
 
 
