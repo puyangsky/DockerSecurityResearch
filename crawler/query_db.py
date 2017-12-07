@@ -5,10 +5,13 @@ import utils
 
 
 class DB:
-    def __init__(self):
-        db = pymysql.connect(utils.getHost(), utils.getUser(), utils.getPwd(), utils.getDb(), use_unicode=True,
-                             charset="utf8")
-        self.cursor = db.cursor()
+    def __init__(self, host=utils.getHost(),
+                 user=utils.getUser(),
+                 pwd=utils.getPwd(),
+                 db_name=utils.getDb()):
+        _db = pymysql.connect(host, user, pwd, db_name, use_unicode=True,
+                              charset="utf8")
+        self.cursor = _db.cursor()
 
     def execute(self, sql):
         self.cursor.execute(sql)
@@ -16,9 +19,9 @@ class DB:
 
 
 def connect_db():
-    db = pymysql.connect(utils.getHost(), utils.getUser(), utils.getPwd(), utils.getDb(), use_unicode=True,
-                         charset="utf8")
-    cursor = db.cursor()
+    _db = pymysql.connect(utils.getHost(), utils.getUser(), utils.getPwd(), utils.getDb(), use_unicode=True,
+                          charset="utf8")
+    cursor = _db.cursor()
     return cursor
 
 
@@ -31,4 +34,7 @@ def fetch_many(image_type, count):
 
 
 if __name__ == '__main__':
-    pass
+    db = DB()
+    rs = db.execute("select * from dockerfile WHERE dockerfile_name='centos'")
+    print(rs)
+    print(len(rs))

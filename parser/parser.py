@@ -75,12 +75,11 @@ def parse():
     print(len(results))
     for result in results:
         dockerfile = result[0]
-        # print(dockerfile)
         parser = Parser(dockerfile)
         parser.dispatch()
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
         # print(json_str)
-        # print (parser.root)
+    print("======\n" + json.dumps(lparser.system_count))
 
 
 if __name__ == '__main__':

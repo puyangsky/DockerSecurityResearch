@@ -7,39 +7,54 @@ from node import Node
 from directive import Directive
 import thesaurus
 import re
+import constants
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("parse_line")
 count = 0
+system_count = {}
+
+
+def purify_code(line):
+    install_list = line.split(" ")
+    pure_install_list = []
+    # 去掉'-'开头的参数
+    for install in install_list:
+        if install.strip().startswith("-"):
+            continue
+        pure_install_list.append(install.strip())
+    return " ".join(pure_install_list)
 
 
 def run_parser(body):
     child = Node()
     child.name = "run"
     items = body.split("&&")
+    install_flag = False
     for item in items:
         item = item.strip()
         for prefix in thesaurus.INSTALL_PREFIX.keys():
+            item = purify_code(item)
             match = re.search(prefix, item)
             if match:  # 说明这一行安装了软件
-                # print(item)
-                global count
-                count += 1
-                print(count)
+                install_flag = True
                 item = re.sub(prefix, '', item).strip()
                 install_list = item.split(" ")
                 pure_install_list = []
                 for install in install_list:
                     if len(install.strip()) == 0:
                         continue
-                    if install.strip().startswith("-"):
-                        continue
                     pure_install_list.append(install.strip())
-                # print(pure_install_list)
                 break
 
         directive = Directive(item)
         child.directives.append(directive)
+    if not install_flag:
+        print(body)
+    else:
+        global count
+        count += 1
+        print(count)
     return child
 
 
@@ -68,6 +83,17 @@ def from_parser(body):
     node = Node()
     node.name = "from"
     node.value = body
+    # print("FROM:" + body)
+    system = str(body.split(":")[0]).strip()
+    if system not in constants.systems:
+        # 递归去解析base image
+        pass
+    else:
+        if system not in system_count.keys():
+            system_count[system] = 1
+        else:
+            system_count[system] += 1
+        print(system)
     return node
 
 

@@ -7,3 +7,8 @@ INSTALL_PREFIX = {
     "yum\s+install":      ["centos", "fedora", "redhat"],
 }
 
+UPDATE_PREFIX = {
+    "apt-get\s+update":  ["ubuntu", "debian"],
+    "apk\s+update":      ["alpine"],
+    "yum\s+update":      ["centos", "fedora", "redhat"],
+}
