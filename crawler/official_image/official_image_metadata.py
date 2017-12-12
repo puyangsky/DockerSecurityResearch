@@ -2,14 +2,32 @@
 # @author puyangsky
 
 import requests
-from query_db import DB
+from crawler.query_db import DB
 import re
 import json
 import sys
 
 official_image_list = {}
 official_image_map = {}
-# data_file = "data/official_image.json"
+# data_file = "data/official_image_metadata.json"
+github_url = "https://github.com/docker-library/official-images/tree/master/library"
+
+
+# def parse_github_page():
+#     content = requests.get(github_url).content
+#     page = etree.HTML(content)
+#     items = page.xpath("//a[@class='js-navigation-open']/@href")
+#     print(items)
+#     for i in range(1, len(items)):
+#         repo_name = items[i]
+#         image_name = repo_name.split("/")[-1]
+#         url = "https://raw.githubusercontent.com" + repo_name.replace("blob/", "")
+#         print(image_name + " : " + url)
+#         page_content = dockerfile = requests.get(url).content
+#
+#
+# def parse_image_version(content):
+#     pass
 
 
 def get_dockerfile_url():
