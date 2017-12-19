@@ -1,0 +1,20 @@
+{
+  "root": {
+    "node1": {
+      "from1": "ubuntu1",
+      "run1": [
+        "nginx1",
+        "apache1",
+        "ssh"
+      ]
+    },
+    "node2": {
+      "from2": "ubuntu2",
+      "run2": [
+        "nginx2",
+        "apache2",
+        "ssh"
+      ]
+    }
+  }
+}
