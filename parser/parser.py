@@ -5,6 +5,7 @@ import logging.config
 import re
 from node import Node
 import json
+import command
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("Parser")
@@ -27,6 +28,7 @@ class Parser:
         self.root = Node()
         self.root.name = "root"
         self.root.directives = None
+        self.base = Node()
         self.handle_comment_and_blank()
         self.dispatch()
 
@@ -62,14 +64,31 @@ class Parser:
             if match:
                 head = match.group(1)
                 body = match.group(2)
-                if head in lparser.line_parser:
+                if head in lparser.line_parser.keys():
                     child = lparser.line_parser[head](body)
                     if child is not None:
-                        self.root.addChild(child)
+                        if head == command.From:
+                            self.base = child
+                        else:
+                            self.root.addChild(child)
                 else:
                     print("[ERROR] %s, %s" % (head, body))
 
             index += 1
+        self.merge()
+
+    def merge(self):
+        """
+        合并root节点和base节点
+        :return:
+        """
+        for key in self.root.child.keys():
+            if key in self.base.child.keys():
+                if key == command.Run:
+                    for directive in self.base.child[key].directives:
+                        self.root.child[key].directives.append(directive)
+                if key == command.From:
+                    self.root.child[key] = self.base.child[key]
 
 
 def parse():

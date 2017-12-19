@@ -8,6 +8,9 @@ from directive import Directive
 import thesaurus
 import re
 import constants
+import parser
+from myutil import docker_fetcher
+
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("parse_line")
@@ -84,10 +87,16 @@ def from_parser(body):
     node.name = "from"
     node.value = body
     # print("FROM:" + body)
-    system = str(body.split(":")[0]).strip()
+    items = body.split(":")
+    system = str(items[0]).strip()
+    tag = str(items[1]).strip()
     if system not in constants.systems:
         # 递归去解析base image
-        pass
+        base_dockerfile = docker_fetcher.fetch(system, tag, 1)
+        if len(base_dockerfile) <= 0:
+            return None
+        base_parser = parser.Parser(base_dockerfile)
+        return base_parser.root
     else:
         if system not in system_count.keys():
             system_count[system] = 1
@@ -208,3 +217,8 @@ line_parser = {
     command.Label: label_parser,
     command.Healthcheck: healthcheck_parser,
 }
+
+
+if __name__ == '__main__':
+    res = docker_fetcher.fetch("nginx", "", 1)
+    print(res)

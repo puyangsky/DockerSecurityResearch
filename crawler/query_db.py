@@ -35,6 +35,7 @@ def fetch_many(image_type, count):
 
 if __name__ == '__main__':
     db = DB()
-    rs = db.execute("select * from dockerfile WHERE dockerfile_name='centos'")
-    print(rs)
+    rs = db.execute("select * from dockerfile WHERE dockerfile_name like '%nginx%' LIMIT 10")
+    for r in rs:
+        print(r)
     print(len(rs))
