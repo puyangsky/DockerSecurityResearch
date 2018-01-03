@@ -6,8 +6,8 @@ from crawler import query_db
 
 def fetch(name, tag, count):
     db = query_db.DB()
-    sql = "SELECT dockerfile_name, dockerfile_content FROM dockerfile " \
-          "WHERE dockerfile_name LIKE '%%%s%%' LIMIT %d" % (name, count)
+    sql = "SELECT name, dockerfile FROM official_dockerfile " \
+          "WHERE name LIKE '%%%s%%' AND tag LIKE '%%%s%%' LIMIT %d" % (name, tag, count)
     return db.execute(sql)
 
 

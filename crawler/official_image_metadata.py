@@ -2,12 +2,14 @@
 # @author puyangsky
 
 from __future__ import print_function
-import requests
-from query_db import DB
+
 import re
-import json
 import sys
 import uuid
+
+import requests
+
+from query_db import DB
 
 official_image_list = {}
 official_image_map = {}
@@ -28,7 +30,7 @@ def get_dockerfile_content(url):
 def dump_to_db(name, url, tag, dockerfile_content):
     dockerfile_content = dockerfile_content.replace("\\", "\\\\")
     dockerfile_content = dockerfile_content.replace("\"", "'")
-    sql = "insert into officialimage_dockerfile (name,url,tag,dockerfile,uuid) VALUES " \
+    sql = "insert into official_dockerfile (name,url,tag,dockerfile,uuid) VALUES " \
           "(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" \
           % (str(name), str(url), str(tag), str(dockerfile_content), str(uuid.uuid4()))
     try:
@@ -45,10 +47,6 @@ def get_page_content():
     解析dockerhub页面，获取dockerfile的url列表
     :return:
     """
-    # if len(argv) < 2:
-    #     print("missing args, exit...")
-    #     sys.exit(0)
-    # data_file = argv[1]
     if len(official_image_list) == 0:
         get_dockerfile_url()
     pattern = re.compile("<li>(<a href=\"https://github.com/\S*?dockerfile\".*?</a>)</li>",
@@ -71,15 +69,9 @@ def get_page_content():
                 urls.add(dockerfile_url)
                 dockerfile_content = get_dockerfile_content(dockerfile_url)
                 print(dockerfile_url)
-
             tags = re.findall(tag_pattern, match_str)
             for tag in tags:
                 dump_to_db(name, url, tag, dockerfile_content)
-        # urls = list(urls)
-        # official_image_map[name] = urls
-        # break
-    # with open(data_file, "a+") as f:
-    #     f.write(json.dumps(official_image_map))
 
 
 if __name__ == '__main__':

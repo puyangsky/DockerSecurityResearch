@@ -14,7 +14,6 @@ from myutil import docker_fetcher
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("parse_line")
-count = 0
 system_count = {}
 
 
@@ -48,16 +47,11 @@ def run_parser(body):
                     if len(install.strip()) == 0:
                         continue
                     pure_install_list.append(install.strip())
+                    print("installed %s" % install)
                 break
 
         directive = Directive(item)
         child.directives.append(directive)
-    if not install_flag:
-        print(body)
-    else:
-        global count
-        count += 1
-        print(count)
     return child
 
 
@@ -86,7 +80,7 @@ def from_parser(body):
     node = Node()
     node.name = "from"
     node.value = body
-    # print("FROM:" + body)
+    print("FROM:" + body)
     items = body.split(":")
     system = str(items[0]).strip()
     tag = str(items[1]).strip()
