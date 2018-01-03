@@ -84,20 +84,21 @@ def from_parser(body):
     items = body.split(":")
     system = str(items[0]).strip()
     tag = str(items[1]).strip()
-    if system not in constants.systems:
-        # 递归去解析base image
-        base_dockerfile = docker_fetcher.fetch(system, tag, 1)
-        if len(base_dockerfile) <= 0:
-            return None
-        base_parser = parser.Parser(base_dockerfile)
-        return base_parser.root
-    else:
-        if system not in system_count.keys():
-            system_count[system] = 1
-        else:
-            system_count[system] += 1
-        print(system)
-    return node
+    # if system not in constants.systems:
+    # 递归去解析base image
+    base_dockerfile = docker_fetcher.fetch(system, tag, 1)
+    if len(base_dockerfile) <= 0:
+        return None
+    print(base_dockerfile)
+    base_parser = parser.Parser(base_dockerfile)
+    return base_parser.root
+    # else:
+    #     if system not in system_count.keys():
+    #         system_count[system] = 1
+    #     else:
+    #         system_count[system] += 1
+    #     print(system)
+    # return node
 
 
 def arg_parser(body):

@@ -8,9 +8,10 @@ def fetch(name, tag, count):
     db = query_db.DB()
     sql = "SELECT name, dockerfile FROM official_dockerfile " \
           "WHERE name LIKE '%%%s%%' AND tag LIKE '%%%s%%' LIMIT %d" % (name, tag, count)
+    print(sql)
     return db.execute(sql)
 
 
 if __name__ == '__main__':
-    res = fetch("nginx", "", 1)
-    print(len(res))
+    res = fetch("alpine", "latest", 1)
+    print(res)
