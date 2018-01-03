@@ -73,7 +73,6 @@ class Parser:
                             self.root.addChild(child)
                 else:
                     print("[ERROR] %s, %s" % (head, body))
-
             index += 1
         self.merge()
 

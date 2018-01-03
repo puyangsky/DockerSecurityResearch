@@ -220,5 +220,7 @@ line_parser = {
 
 
 if __name__ == '__main__':
-    res = docker_fetcher.fetch("nginx", "", 1)
-    print(res)
+    # res = docker_fetcher.fetch("nginx", "", 1)
+    # print(res)
+    from statistics.graphviz import json2graph as j2g
+    j2g.transform("../statistics/graphviz/test.json")

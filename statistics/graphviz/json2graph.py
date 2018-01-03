@@ -16,7 +16,6 @@ import json
 def travel_json(data, root, pre=None):
     # check type of json node
     # list or dict
-    # print("type of data:", type(data))
     if type(data) == dict:
         for key0 in data.keys():
             if pre is not None:
@@ -31,18 +30,15 @@ def travel_json(data, root, pre=None):
             root.add_edge(pre, data)
 
 
-def transform():
-    graph = pgv.AGraph(directed=True, strict=True)
-    with open("test.json", "r") as f:
+def transform(json_file_path):
+    graph = pgv.AGraph(directed=True, strict=True, name="graph")
+    with open(json_file_path, "r") as f:
         json_data = json.loads(f.read())
-
-    # print(json.dumps(json_data, indent=2))
-    travel_json(json_data, graph)
-    # A.add_edge(1, 2)
-    print(graph.string())
-    graph.layout('dot')
-    graph.draw('test.png')
+        travel_json(json_data, graph)
+        print(graph.string())
+        graph.layout('dot')
+        graph.draw('test.png')
 
 
 if __name__ == '__main__':
-    transform()
+    transform("test.json")

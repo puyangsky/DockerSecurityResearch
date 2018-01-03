@@ -2,3 +2,6 @@ db.conf
 .idea
 */*pyc
 logs
+*/*/*pyc
+*/*/*json
+*/*/*png
