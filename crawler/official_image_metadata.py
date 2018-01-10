@@ -30,8 +30,8 @@ def get_dockerfile_content(url):
 def dump_to_db(name, url, tag, dockerfile_content):
     dockerfile_content = dockerfile_content.replace("\\", "\\\\")
     dockerfile_content = dockerfile_content.replace("\"", "'")
-    sql = "insert into official_dockerfile (name,url,tag,dockerfile,uuid) VALUES " \
-          "(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" \
+    sql = 'insert into official_dockerfile (name,url,tag,dockerfile,uuid) VALUES ' \
+          '("%s", "%s", "%s", "%s", "%s")' \
           % (str(name), str(url), str(tag), str(dockerfile_content), str(uuid.uuid4()))
     try:
         db.insert(sql)

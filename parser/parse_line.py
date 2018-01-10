@@ -9,6 +9,7 @@ import parser
 import thesaurus
 from directive import Directive
 from node import Node
+import constants
 from utils import docker_fetcher
 
 logging.config.fileConfig("../logger.conf")
@@ -38,8 +39,11 @@ def run_parser(body):
             item = purify_code(item)
             match = re.search(prefix, item)
             if match:  # 说明这一行安装了软件
-                install_flag = True
+                tmp = re.sub(prefix, constants.SEP, item).strip()
+                if not tmp.startswith(constants.SEP):
+                    break
                 item = re.sub(prefix, '', item).strip()
+                install_flag = True
                 install_list = item.split(" ")
                 for install in install_list:
                     if len(install.strip()) == 0:
@@ -77,6 +81,8 @@ def from_parser(body):
     node = Node()
     node.name = command.From
     node.value.append(body)
+    print("             |")
+    print("             V")
     print("Base Image: %s" % body)
     items = body.split(":")
     if len(items) == 2:

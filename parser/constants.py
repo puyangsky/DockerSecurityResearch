@@ -37,3 +37,5 @@ command_weight = {
     command.Entrypoint: 0,
     command.Maintainer: 0,
 }
+
+SEP = 'DOCKET_REPLACEMENT'

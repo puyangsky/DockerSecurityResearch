@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 from crawler import query_db as db
 import parse_line as lparser
 import logging.config
@@ -21,6 +23,9 @@ class Parser:
     """
 
     def __init__(self, name, dockerfile):
+        # print("Name: %s" % name)
+        # print(dockerfile)
+        # print("\n==================================================")
         if dockerfile is not None:
             self.lines = dockerfile.split("\n")
         else:
@@ -43,7 +48,6 @@ class Parser:
                 continue  # remove blank line and comment
             else:
                 pure_lines.append(line)
-
         self.lines = pure_lines
 
     def dispatch(self):
@@ -84,21 +88,23 @@ class Parser:
         for key in self.root.child.keys():
             if key in self.base.child.keys():
                 if key == command.Run:
-                    for directive in self.base.child[key].directives:
-                        self.root.child[key].directives.append(directive)
+                    self.root.child[key].directives.directive.extend(self.base.child[key].directives.directive)
+                    self.root.child[key].directives.install.extend(self.base.child[key].directives.install)
                 if key == command.From:
                     self.root.child[key] = self.base.child[key]
 
 
 def parse():
-    results = db.fetch_many(image_type="nginx", count=1)
-    print("Fetch done! Total size: %d" % len(results))
+    results = db.fetch_many(image_type="tomcat", count=1)
     for result in results:
         dockerfile_name, dockerfile = result[0], result[1]
         parser = Parser(dockerfile_name, dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-        print(json_str)
+        # print(json_str)
 
 
 if __name__ == '__main__':
-    parse()
+    import utils.docker_fetcher as fetcher
+    parser = Parser("openjdk", fetcher.fetch("openjdk", "8-jre", 1)[0][0])
+    json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
+    print(json_str)
