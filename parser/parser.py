@@ -20,13 +20,13 @@ class Parser:
     分别处理
     """
 
-    def __init__(self, dockerfile):
+    def __init__(self, name, dockerfile):
         if dockerfile is not None:
             self.lines = dockerfile.split("\n")
         else:
             self.lines = []
         self.root = Node()
-        self.root.name = "root"
+        self.root.name = name
         self.root.directives = None
         self.base = Node()
         self.handle_comment_and_blank()
@@ -94,11 +94,9 @@ def parse():
     results = db.fetch_many(image_type="nginx", count=1)
     print("Fetch done! Total size: %d" % len(results))
     for result in results:
-        dockerfile = result[0]
-        print(dockerfile)
-        parser = Parser(dockerfile)
+        dockerfile_name, dockerfile = result[0], result[1]
+        parser = Parser(dockerfile_name, dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-        # json_str = json.dumps(parser.root.__dict__, indent=2)
         print(json_str)
 
 

@@ -10,7 +10,7 @@ class DB:
                  pwd=utils.getPwd(),
                  db_name=utils.getDb()):
         self._db = pymysql.connect(host, user, pwd, db_name, use_unicode=True,
-                              charset="utf8")
+                                   charset="utf8")
         self.cursor = self._db.cursor()
 
     def execute(self, sql):
@@ -31,7 +31,7 @@ def connect_db():
 
 def fetch_many(image_type, count):
     cursor = connect_db()
-    sql = "select dockerfile_content from dockerfile WHERE type='%s' LIMIT %d" % (image_type, count)
+    sql = "select dockerfile_name, dockerfile_content from dockerfile WHERE type='%s' LIMIT %d" % (image_type, count)
     # print("exec sql: " + sql)
     cursor.execute(sql)
     return cursor.fetchall()

@@ -30,26 +30,25 @@ def run_parser(body):
     child = Node()
     child.name = command.Run
     items = body.split("&&")
+    directive = Directive()
     for item in items:
         item = item.strip()
-        directive = None
+        install_flag = False
         for prefix in thesaurus.INSTALL_PREFIX.keys():
             item = purify_code(item)
             match = re.search(prefix, item)
             if match:  # 说明这一行安装了软件
+                install_flag = True
                 item = re.sub(prefix, '', item).strip()
                 install_list = item.split(" ")
-                pure_install_list = []
                 for install in install_list:
                     if len(install.strip()) == 0:
                         continue
-                    pure_install_list.append(install.strip())
-                    # print("installed %s" % install)
-                directive = Directive(installed_software=pure_install_list)
+                    directive.add_install(install.strip())
                 break
-            else:
-                directive = Directive(directive=item)
-        child.directives.append(directive)
+        if not install_flag:
+            directive.add_directive(item)
+    child.directives = directive
     return child
 
 
@@ -91,7 +90,7 @@ def from_parser(body):
     if len(base_dockerfile) != 1:
         return None
     # print("base image dockerfile: \n##\n%s##" % base_dockerfile[0][0])
-    base_parser = parser.Parser(base_dockerfile[0][0])
+    base_parser = parser.Parser(body, base_dockerfile[0][0])
     return base_parser.root
 
 

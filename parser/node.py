@@ -22,7 +22,7 @@ class Node(object):
         self.child = {}  # child node
         self.value = []  # actual content
         self.name = ""  # node Name
-        self.directives = []
+        self.directives = None
 
     def addChild(self, child):
         if child.name not in self.child.keys():
