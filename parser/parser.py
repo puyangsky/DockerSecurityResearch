@@ -95,11 +95,11 @@ def parse():
     print("Fetch done! Total size: %d" % len(results))
     for result in results:
         dockerfile = result[0]
-        # print(dockerfile)
+        print(dockerfile)
         parser = Parser(dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-        # print(json_str)
-    print("======\n" + json.dumps(lparser.system_count))
+        # json_str = json.dumps(parser.root.__dict__, indent=2)
+        print(json_str)
 
 
 if __name__ == '__main__':

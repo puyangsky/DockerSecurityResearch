@@ -2,19 +2,17 @@
 # @author puyangsky
 
 import logging.config
-import command
-from node import Node
-from directive import Directive
-import thesaurus
 import re
-import constants
-import parser
-from myutil import docker_fetcher
 
+import command
+import parser
+import thesaurus
+from directive import Directive
+from node import Node
+from utils import docker_fetcher
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("parse_line")
-system_count = {}
 
 
 def purify_code(line):
@@ -30,16 +28,15 @@ def purify_code(line):
 
 def run_parser(body):
     child = Node()
-    child.name = "run"
+    child.name = command.Run
     items = body.split("&&")
-    install_flag = False
     for item in items:
         item = item.strip()
+        directive = None
         for prefix in thesaurus.INSTALL_PREFIX.keys():
             item = purify_code(item)
             match = re.search(prefix, item)
             if match:  # 说明这一行安装了软件
-                install_flag = True
                 item = re.sub(prefix, '', item).strip()
                 install_list = item.split(" ")
                 pure_install_list = []
@@ -47,148 +44,145 @@ def run_parser(body):
                     if len(install.strip()) == 0:
                         continue
                     pure_install_list.append(install.strip())
-                    print("installed %s" % install)
+                    # print("installed %s" % install)
+                directive = Directive(installed_software=pure_install_list)
                 break
-
-        directive = Directive(item)
+            else:
+                directive = Directive(directive=item)
         child.directives.append(directive)
     return child
 
 
 def command_parser(body):
     node = Node()
-    node.name = "command"
-    node.value = body
+    node.name = command.Cmd
+    node.value.append(body)
     return node
 
 
 def copy_parser(body):
     node = Node()
-    node.name = "copy"
-    node.value = body
+    node.name = command.Copy
+    node.value.append(body)
     return node
 
 
 def add_parser(body):
     node = Node()
-    node.name = "add"
-    node.value = body
+    node.name = command.Add
+    node.value.append(body)
     return node
 
 
 def from_parser(body):
     node = Node()
-    node.name = "from"
-    node.value = body
-    print("FROM:" + body)
+    node.name = command.From
+    node.value.append(body)
+    print("Base Image: %s" % body)
     items = body.split(":")
-    system = str(items[0]).strip()
-    tag = str(items[1]).strip()
-    # if system not in constants.systems:
-    # 递归去解析base image
-    base_dockerfile = docker_fetcher.fetch(system, tag, 1)
-    if len(base_dockerfile) <= 0:
+    if len(items) == 2:
+        system = str(items[0]).strip()
+        tag = str(items[1]).strip()
+        # 递归去解析base image
+        base_dockerfile = docker_fetcher.fetch(system, tag, 1)
+    else:
+        system = str(items[0]).strip()
+        base_dockerfile = docker_fetcher.fetch(system, None, 1)
+    if len(base_dockerfile) != 1:
         return None
-    print(base_dockerfile)
-    base_parser = parser.Parser(base_dockerfile)
+    # print("base image dockerfile: \n##\n%s##" % base_dockerfile[0][0])
+    base_parser = parser.Parser(base_dockerfile[0][0])
     return base_parser.root
-    # else:
-    #     if system not in system_count.keys():
-    #         system_count[system] = 1
-    #     else:
-    #         system_count[system] += 1
-    #     print(system)
-    # return node
 
 
 def arg_parser(body):
     node = Node()
-    node.name = "arg"
-    node.value = body
+    node.name = command.Arg
+    node.value.append(body)
     return node
 
 
 def entrypoint_parser(body):
     node = Node()
-    node.name = "entrypoint"
-    node.value = body
+    node.name = command.Entrypoint
+    node.value.append(body)
     return node
 
 
 def env_parser(body):
     node = Node()
-    node.name = "env"
-    node.value = body
+    node.name = command.Env
+    node.value.append(body)
     return node
 
 
 def maintainer_parser(body):
     node = Node()
-    node.name = "entrypoint"
-    node.value = body
+    node.name = command.Maintainer
+    node.value.append(body)
     return node
 
 
 def expose_parser(body):
     node = Node()
-    node.name = "entrypoint"
-    node.value = body
+    node.name = command.Expose
+    node.value.append(body)
     return node
 
 
 def shell_parser(body):
     node = Node()
-    node.name = "shell"
-    node.value = body
+    node.name = command.Shell
+    node.value.append(body)
     return node
 
 
 def onbuild_parser(body):
     node = Node()
-    node.name = "onbuild"
-    node.value = body
+    node.name = command.Onbuild
+    node.value.append(body)
     return node
 
 
 def stop_signal_parser(body):
     node = Node()
-    node.name = "stop_signal"
-    node.value = body
+    node.name = command.StopSignal
+    node.value.append(body)
     return node
 
 
 def user_parser(body):
     node = Node()
-    node.name = "user"
-    node.value = body
+    node.name = command.User
+    node.value.append(body)
     return node
 
 
 def volume_parser(body):
     node = Node()
-    node.name = "volume"
-    node.value = body
+    node.name = command.Volume
+    node.value.append(body)
     return node
 
 
 def workdir_parser(body):
     node = Node()
-    node.name = "workdir"
-    node.value = body
+    node.name = command.Workdir
+    node.value.append(body)
     return node
 
 
 def label_parser(body):
     node = Node()
-    node.name = "label"
-    node.value = body
+    node.name = command.Label
+    node.value.append(body)
     return node
 
 
 def healthcheck_parser(body):
     node = Node()
-    node.name = "healthcheck"
-    node.value = body
+    node.name = command.Healthcheck
+    node.value.append(body)
     return node
 
 

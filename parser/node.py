@@ -13,12 +13,23 @@
 # This data structure is frankly pretty lousy for handling complex languages,
 # but lucky for us the Dockerfile isn't very complicated. This structure
 # works a little more effectively than a "proper" parse tree for our needs.
+
+import command
+
+
 class Node(object):
     def __init__(self):
         self.child = {}  # child node
-        self.value = ""  # actual content
+        self.value = []  # actual content
         self.name = ""  # node Name
         self.directives = []
 
     def addChild(self, child):
-        self.child[child.name] = child
+        if child.name not in self.child.keys():
+            self.child[child.name] = child
+        else:
+            # merge child
+            if child.name == command.Run:
+                self.child[child.name].directives.extend(child.directives)
+            else:
+                self.child[child.name].value.extend(child.value)
