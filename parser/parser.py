@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-import sys
 
-from crawler import query_db as db
-import parse_line as lparser
+import json
 import logging.config
 import re
-from node import Node
-import json
+
+import sys
+
 import command
+import parse_line as lparser
+from crawler import query_db as db
+from node import Node
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("Parser")
@@ -25,6 +27,7 @@ class Parser:
     def __init__(self, name, dockerfile):
         # print("Name: %s" % name)
         # print(dockerfile)
+        # print("\n==================================================")
         # print("\n==================================================")
         if dockerfile is not None:
             self.lines = dockerfile.split("\n")
@@ -85,26 +88,35 @@ class Parser:
         合并root节点和base节点
         :return:
         """
-        for key in self.root.child.keys():
-            if key in self.base.child.keys():
+        for key in self.base.child.keys():
+            if key in self.root.child.keys():
                 if key == command.Run:
                     self.root.child[key].directives.directive.extend(self.base.child[key].directives.directive)
                     self.root.child[key].directives.install.extend(self.base.child[key].directives.install)
                 if key == command.From:
                     self.root.child[key] = self.base.child[key]
+            else:
+                self.root.child[key] = self.base.child[key]
+        if self.base.name != '':
+            self.root.name = self.base.name
 
 
-def parse():
-    results = db.fetch_many(image_type="tomcat", count=1)
+def parse(image_type, count, verbose=False):
+    root_list = []
+    results = db.fetch_many(image_type=image_type, count=count)
     for result in results:
         dockerfile_name, dockerfile = result[0], result[1]
         parser = Parser(dockerfile_name, dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-        # print(json_str)
+        if verbose:
+            print(json_str)
+        root_list.append(parser.root)
+    return root_list
 
 
 if __name__ == '__main__':
-    import utils.docker_fetcher as fetcher
-    parser = Parser("openjdk", fetcher.fetch("openjdk", "8-jre", 1)[0][0])
-    json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-    print(json_str)
+    # import utils.docker_fetcher as fetcher
+    # parser = Parser("openjdk", fetcher.fetch("openjdk", "8-jre", 1)[0][0])
+    # json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
+    # print(json_str)
+    parse("tomcat", 1)

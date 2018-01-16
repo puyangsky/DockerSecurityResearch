@@ -27,6 +27,11 @@ def purify_code(line):
     return " ".join(pure_install_list)
 
 
+def purify_install(install):
+    install = install.strip()
+    return install.split("=")[0]
+
+
 def run_parser(body):
     child = Node()
     child.name = command.Run
@@ -46,9 +51,10 @@ def run_parser(body):
                 install_flag = True
                 install_list = item.split(" ")
                 for install in install_list:
+                    install = purify_install(install)
                     if len(install.strip()) == 0:
                         continue
-                    directive.add_install(install.strip())
+                    directive.add_install(install)
                 break
         if not install_flag:
             directive.add_directive(item)
@@ -95,8 +101,8 @@ def from_parser(body):
         base_dockerfile = docker_fetcher.fetch(system, None, 1)
     if len(base_dockerfile) != 1:
         return None
-    # print("base image dockerfile: \n##\n%s##" % base_dockerfile[0][0])
     base_parser = parser.Parser(body, base_dockerfile[0][0])
+    base_parser.root.base_name = body
     return base_parser.root
 
 
