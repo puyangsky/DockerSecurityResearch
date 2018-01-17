@@ -23,6 +23,7 @@ class Node(object):
         self.child = {}  # child node
         self.value = []  # actual content
         self.name = ""  # node Name
+        self.base_name = ""  # base node Name
         self.directives = None  # Directive
 
     def addChild(self, child):

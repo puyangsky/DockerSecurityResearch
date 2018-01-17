@@ -3,7 +3,6 @@
 
 import logging.config
 import re
-
 import command
 import parser
 import thesaurus
@@ -51,10 +50,14 @@ def run_parser(body):
                 install_flag = True
                 install_list = item.split(" ")
                 for install in install_list:
-                    install = purify_install(install)
-                    if len(install.strip()) == 0:
-                        continue
-                    directive.add_install(install)
+                    install_pattern = re.compile("^\w.*$")
+                    if install_pattern.match(install):
+                        install = purify_install(install)
+                        if len(install.strip()) == 0:
+                            continue
+                        directive.add_install(install)
+                    # else:
+                    #     print >> sys.stderr, "invalid format: %s" % install
                 break
         if not install_flag:
             directive.add_directive(item)
@@ -87,9 +90,9 @@ def from_parser(body):
     node = Node()
     node.name = command.From
     node.value.append(body)
-    print("             |")
-    print("             V")
-    print("Base Image: %s" % body)
+    # print("             |")
+    # print("             V")
+    # print("Base Image: %s" % body)
     items = body.split(":")
     if len(items) == 2:
         system = str(items[0]).strip()
@@ -102,7 +105,6 @@ def from_parser(body):
     if len(base_dockerfile) != 1:
         return None
     base_parser = parser.Parser(body, base_dockerfile[0][0])
-    base_parser.root.base_name = body
     return base_parser.root
 
 

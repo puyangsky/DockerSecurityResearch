@@ -3,9 +3,6 @@
 import json
 import logging.config
 import re
-
-import sys
-
 import command
 import parse_line as lparser
 from crawler import query_db as db
@@ -34,6 +31,7 @@ class Parser:
         else:
             self.lines = []
         self.root = Node()
+        self.root.base_name = name
         self.root.name = name
         self.root.directives = None
         self.base = Node()
@@ -97,8 +95,8 @@ class Parser:
                     self.root.child[key] = self.base.child[key]
             else:
                 self.root.child[key] = self.base.child[key]
-        if self.base.name != '':
-            self.root.name = self.base.name
+        if self.base.base_name != '':
+            self.root.base_name = self.base.base_name
 
 
 def parse(image_type, count, verbose=False):
@@ -115,8 +113,4 @@ def parse(image_type, count, verbose=False):
 
 
 if __name__ == '__main__':
-    # import utils.docker_fetcher as fetcher
-    # parser = Parser("openjdk", fetcher.fetch("openjdk", "8-jre", 1)[0][0])
-    # json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
-    # print(json_str)
-    parse("tomcat", 1)
+    parse("tomcat", 1, True)
