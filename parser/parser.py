@@ -7,6 +7,7 @@ import command
 import parse_line as lparser
 from crawler import query_db as db
 from node import Node
+from utils import docker_fetcher
 
 logging.config.fileConfig("../logger.conf")
 logger = logging.getLogger("Parser")
@@ -22,7 +23,6 @@ class Parser:
     """
 
     def __init__(self, name, dockerfile):
-        # print("Name: %s" % name)
         # print(dockerfile)
         # print("\n==================================================")
         # print("\n==================================================")
@@ -70,6 +70,9 @@ class Parser:
                 head = match.group(1)
                 body = match.group(2)
                 if head in lparser.line_parser.keys():
+                    if head == command.From and body == self.root.name:
+                        print("[WARNING] %s, base image is same as current image, ignore" % self.root.name)
+                        break
                     child = lparser.line_parser[head](body)
                     if child is not None:
                         if head == command.From:
@@ -104,6 +107,7 @@ def parse(image_type, count, verbose=False):
     results = db.fetch_many(image_type=image_type, count=count)
     for result in results:
         dockerfile_name, dockerfile = result[0], result[1]
+        print("[INFO] parsing %s" % dockerfile_name)
         parser = Parser(dockerfile_name, dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
         if verbose:
@@ -112,5 +116,17 @@ def parse(image_type, count, verbose=False):
     return root_list
 
 
+def parse_dockerfile(name):
+    dockerfile = docker_fetcher.fetch_unofficial(name)
+    if len(dockerfile) == 1:
+        dockerfile = dockerfile[0][0]
+    else:
+        return
+    parser = Parser(name, dockerfile)
+    json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
+    print(json_str)
+
+
 if __name__ == '__main__':
-    parse("tomcat", 1, True)
+    # parse("erickoh/nginx", 1, True)
+    parse_dockerfile("erickoh/nginx")

@@ -97,13 +97,16 @@ def from_parser(body):
     if len(items) == 2:
         system = str(items[0]).strip()
         tag = str(items[1]).strip()
-        # 递归去解析base image
-        base_dockerfile = docker_fetcher.fetch(system, tag, 1)
+        # parse base image recursively
+        base_dockerfile = docker_fetcher.fetch_official(system, tag, 1)
     else:
         system = str(items[0]).strip()
-        base_dockerfile = docker_fetcher.fetch(system, None, 1)
+        base_dockerfile = docker_fetcher.fetch_official(system, None, 1)
     if len(base_dockerfile) != 1:
-        return None
+        # try to fetch unofficial dockerfile
+        base_dockerfile = docker_fetcher.fetch_unofficial(system, 1)
+        if len(base_dockerfile) != 1:
+            return None
     base_parser = parser.Parser(body, base_dockerfile[0][0])
     return base_parser.root
 
