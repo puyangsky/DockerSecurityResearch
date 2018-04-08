@@ -104,16 +104,24 @@ class Parser:
 
 def parse(image_type, count, verbose=False):
     root_list = []
+    run_dict = {}
+    directive_dict = {}
     results = db.fetch_many(image_type=image_type, count=count)
     for result in results:
         dockerfile_name, dockerfile = result[0], result[1]
-        print("[INFO] parsing %s" % dockerfile_name)
+        # print("[INFO] parsing %s ..." % dockerfile_name)
         parser = Parser(dockerfile_name, dockerfile)
         json_str = json.dumps(parser.root, default=lambda obj: obj.__dict__, indent=2)
         if verbose:
             print(json_str)
         root_list.append(parser.root)
-    return root_list
+        child = parser.root.child
+        if "run" in child.keys():
+            run_dict[dockerfile_name] = child["run"].directives.install
+            directive_dict[dockerfile_name] = child["run"].directives.directive
+    # print(json.dumps(run_dict, default=lambda obj: obj.__dict__, indent=2))
+    # print(json.dumps(directive_list, default=lambda obj: obj.__dict__, indent=2))
+    return run_dict, directive_dict
 
 
 def parse_dockerfile(name):
@@ -128,5 +136,5 @@ def parse_dockerfile(name):
 
 
 if __name__ == '__main__':
-    # parse("erickoh/nginx", 1, True)
-    parse_dockerfile("erickoh/nginx")
+    parse("nginx", 10, False)
+    # parse_dockerfile("erickoh/nginx")

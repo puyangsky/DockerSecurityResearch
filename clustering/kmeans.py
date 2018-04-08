@@ -11,14 +11,15 @@ from __future__ import print_function
 
 import numpy as np
 from sklearn.cluster import KMeans
+import scipy.spatial.distance as sci_dist
 
 
 def official():
     X = np.array([[1, 2], [1, 4], [1, 0],
                   [4, 2], [4, 4], [4, 0]])
 
-    kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
-    print(kmeans.labels_)
+    kmeans = KMeans(n_clusters=2, random_state=0, verbose=False).fit(X)
+    # print(kmeans.labels_)
     kmeans.predict([[0, 0], [4, 4]])
     print(kmeans.cluster_centers_)
 
@@ -42,7 +43,7 @@ class MyKMeans:
                 min_dist = np.inf
                 min_index = -1
                 for j in range(self.n_clusters):
-                    dist = self.distance(self.data_set[i], self.centers[j])
+                    dist = self.euclidean_distance(self.data_set[i], self.centers[j])
                     if dist < min_dist:
                         min_dist = dist
                         min_index = j
@@ -65,11 +66,19 @@ class MyKMeans:
             maxJ = max(self.data_set[:, j])
             rangeJ = float(maxJ - minJ)
             centers[:, j] = minJ + rangeJ * np.random.rand(self.n_clusters, 1)
+        # matrix to ndarray
         return centers.A
 
     @staticmethod
-    def distance(vecA, vecB):
+    def euclidean_distance(vecA, vecB):
         return np.sqrt(sum(np.power(vecA - vecB, 2)))
+
+    @staticmethod
+    def jaccard_distance(vecA, vecB):
+        mat = np.mat([vecA, vecB])
+        result = sci_dist.pdist(mat, 'jaccard')
+        print(result)
+        return result
 
 
 def test():
@@ -82,5 +91,8 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
-    # official()
+    # test()
+    official()
+    # data_set = np.array([[1, 1, 0, 1, 0, 1, 0, 0, 1],
+    #                      [0, 1, 1, 0, 0, 0, 1, 1, 1]])
+    # MyKMeans.jaccard_distance(data_set[0, :], data_set[1, :])

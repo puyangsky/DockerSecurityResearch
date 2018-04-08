@@ -21,5 +21,6 @@ def fetch_unofficial(name, count=1):
 
 
 if __name__ == '__main__':
-    res = fetch_official("tomcat", "9.0", 1)
-    print(res[0][0])
+    # res = fetch_official("tomcat", "9.0", 1)
+    # print(res[0][0])
+    print(fetch_unofficial("techakcent/nginx")[0][0])
